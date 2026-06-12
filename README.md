@@ -31,7 +31,7 @@ Interview Prep is a real-time, voice-based AI mock interview application powered
 
 ### Step 1: Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/OOlajide/interview-prep.git
 cd interview-prep
 ```
 
