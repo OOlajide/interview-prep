@@ -45,7 +45,6 @@ const videoContainer = document.getElementById('videoContainer');
 const cameraPlaceholder = document.getElementById('cameraPlaceholder');
 const webcamEl = document.getElementById('webcam');
 const avatarGlow = document.getElementById('avatarGlow');
-const transcriptEl = document.getElementById('transcript');
 const stopBtn = document.getElementById('stopBtn');
 
 // DOM Elements - Feedback Details
@@ -290,41 +289,12 @@ function appendTranscript(text, isInterviewer) {
   if (!text) return;
   
   const speaker = isInterviewer ? 'interviewer' : 'candidate';
+  const processedText = text.trim();
   
-  if (speaker !== lastSpeaker) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + (isInterviewer ? 'interviewer' : 'candidate');
-    
-    const label = document.createElement('div');
-    label.className = 'msg-sender';
-    label.textContent = isInterviewer ? 'Interviewer' : 'You';
-    
-    currentMsgContent = document.createElement('div');
-    currentMsgContent.className = 'msg-content';
-    
-    div.appendChild(label);
-    div.appendChild(currentMsgContent);
-    transcriptEl.appendChild(div);
-    
-    lastSpeaker = speaker;
-  }
-  
-  const separator = currentMsgContent.innerHTML ? ' ' : '';
-  let processedText = text.trim();
-  
-  let fullText = currentMsgContent.getAttribute('data-raw') || '';
-  fullText += separator + processedText;
-  currentMsgContent.setAttribute('data-raw', fullText);
-  
-  // Format bold markdown
-  const htmlText = fullText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-  currentMsgContent.innerHTML = htmlText;
-  
-  transcriptEl.scrollTop = transcriptEl.scrollHeight;
-
   // Append to history record for feedback API
   if (transcriptHistory.length === 0 || transcriptHistory[transcriptHistory.length - 1].sender !== speaker) {
     transcriptHistory.push({ sender: speaker, text: processedText });
+    lastSpeaker = speaker;
   } else {
     transcriptHistory[transcriptHistory.length - 1].text += ' ' + processedText;
   }
@@ -625,7 +595,12 @@ function displayFeedback(feedback) {
   (feedback.improvedAnswerExamples || []).forEach(ex => {
     const div = document.createElement('div');
     div.className = 'improved-example';
-    div.innerHTML = ex.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    let htmlContent = ex
+      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+      .replace(/\n/g, '<br>')
+      .replace(/<br>\s*-\s*/g, '<br>• ')
+      .replace(/^-\s*/g, '• ');
+    div.innerHTML = htmlContent;
     feedbackExamples.appendChild(div);
   });
 
@@ -644,7 +619,6 @@ stopBtn.onclick = endSessionAndGetFeedback;
 
 resetSessionBtn.onclick = () => {
   transcriptHistory = [];
-  transcriptEl.innerHTML = '';
   lastSpeaker = null;
   currentMsgContent = null;
   switchState('idle');

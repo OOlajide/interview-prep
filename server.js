@@ -124,7 +124,7 @@ Generate a comprehensive feedback report in JSON format matching this exact sche
   "strengths": ["Strength 1", "Strength 2", ...],
   "weaknesses": ["Weakness 1", "Weakness 2", ...],
   "missedOpportunities": ["Detail where the candidate could have elaborated or given a better answer", ...],
-  "improvedAnswerExamples": ["Example of how to answer a question from the transcript better", ...],
+  "improvedAnswerExamples": ["Format each example strictly using this structure (use double newlines between sections):\n\n**Question**: [Question from transcript]\n\n**Critique**: [Why the original answer could be improved]\n\n**Suggested Answer**: [A model answer using STAR method if behavioral, or step-by-step clarity if technical]", ...],
   "resumeJobFit": "Analysis of how well the candidate's resume aligns with this job description",
   "recommendedPracticeAreas": ["Area to practice 1", "Area to practice 2", ...]
 }

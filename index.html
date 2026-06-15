@@ -471,8 +471,12 @@
     /* Stage Panel (Right) */
     .stage-panel {
       flex: 1;
+      height: calc(100vh - 140px);
       min-height: calc(100vh - 140px);
       position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .stage-state {
@@ -625,8 +629,8 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
-      flex: 1.2;
-      min-height: 280px;
+      flex: 1;
+      min-height: 320px;
     }
 
     .video-container {
@@ -719,93 +723,7 @@
       100% { transform: scale(1.35) rotate(-1deg); background: var(--accent-cyan); }
     }
 
-    /* Transcript Card */
-    .transcript-container {
-      flex: 2;
-      border: var(--border-width) solid var(--border-color);
-      border-radius: var(--radius);
-      background: #09090b;
-      display: flex;
-      flex-direction: column;
-      height: 320px;
-      min-height: 220px;
-      overflow: hidden;
-      box-shadow: 6px 6px 0px #000000;
-    }
 
-    .transcript-header {
-      padding: 0.75rem 1rem;
-      border-bottom: var(--border-width) solid var(--border-color);
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #000000;
-      background: var(--accent-cyan);
-      text-transform: uppercase;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .transcript-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .msg {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-width: 80%;
-      padding: 0.75rem 1rem;
-      border-radius: var(--radius);
-      border: var(--border-width) solid var(--border-color);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      box-shadow: 3px 3px 0px #000000;
-    }
-
-    .msg.interviewer {
-      background: var(--bg-panel-light);
-      align-self: flex-start;
-      border-left: 6px solid var(--accent-purple);
-    }
-
-    .msg.candidate {
-      background: var(--bg-panel-light);
-      align-self: flex-end;
-      border-left: 6px solid var(--secondary);
-    }
-
-    .msg-sender {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .msg.interviewer .msg-sender {
-      color: #c084fc;
-    }
-
-    .msg.candidate .msg-sender {
-      color: var(--secondary);
-    }
-
-    .msg-content {
-      word-break: break-word;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .msg-content b {
-      color: var(--accent-yellow);
-      font-weight: 700;
-    }
 
     /* Feedback Loading State */
     .state-loading-feedback {
@@ -836,7 +754,6 @@
     .state-feedback {
       gap: 2rem;
       overflow-y: auto;
-      max-height: calc(100vh - 140px);
       padding-right: 5px;
     }
 
@@ -902,7 +819,7 @@
 
     .feedback-summary-text p {
       font-size: 1rem;
-      color: var(--text-secondary);
+      color: var(--text-primary);
       line-height: 1.6;
     }
 
@@ -990,15 +907,15 @@
 
     .improved-example {
       background: var(--bg-panel);
-      padding: 1rem;
+      padding: 1.25rem;
       border-left: 5px solid var(--primary);
       border-top: var(--border-width) solid var(--border-color);
       border-right: var(--border-width) solid var(--border-color);
       border-bottom: var(--border-width) solid var(--border-color);
       border-radius: var(--radius);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      box-shadow: 2px 2px 0px #000000;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      box-shadow: 3px 3px 0px #000000;
     }
 
     .practice-areas-tags {
@@ -1113,6 +1030,7 @@
         max-height: none;
       }
       .stage-panel {
+        height: auto;
         min-height: 450px;
       }
     }
@@ -1133,6 +1051,7 @@
       }
       .session-visuals {
         grid-template-columns: 1fr;
+        flex: 0 0 480px;
       }
       .feedback-hero {
         grid-template-columns: 1fr;
@@ -1298,15 +1217,7 @@
           </div>
         </div>
         
-        <div class="transcript-container">
-          <div class="transcript-header">
-            <span>Live Dialogue Transcript</span>
-            <span style="font-size: 0.8rem; font-weight: 500; text-transform: none; color: var(--text-muted);">Real-time speech translation</span>
-          </div>
-          <div class="transcript-body" id="transcript">
-            <!-- Messages populated here -->
-          </div>
-        </div>
+
       </div>
       
       <!-- State 3: Loading Feedback -->
@@ -1357,7 +1268,7 @@
 
           <div class="feedback-card">
             <div class="feedback-card-title">🤝 Resume & Job Alignment</div>
-            <p id="feedbackAlignment" style="font-size: 0.9rem; line-height: 1.45; color: var(--text-secondary);"></p>
+            <p id="feedbackAlignment" style="font-size: 0.9rem; line-height: 1.45; color: var(--text-primary);"></p>
           </div>
         </div>
         
