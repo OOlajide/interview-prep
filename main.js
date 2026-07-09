@@ -593,9 +593,31 @@ function displayFeedback(feedback) {
   // Examples
   feedbackExamples.innerHTML = '';
   (feedback.improvedAnswerExamples || []).forEach(ex => {
+    if (!ex) return;
+    
+    // Safely cast or format ex to a string. 
+    // Sometimes the LLM returns an object structure for improvedAnswerExamples instead of a raw string.
+    let rawText = '';
+    if (typeof ex === 'string') {
+      rawText = ex;
+    } else if (typeof ex === 'object') {
+      // If it's an object, format its properties (e.g. question, critique, suggestedAnswer)
+      const parts = [];
+      if (ex.question) parts.push(`**Question**: ${ex.question}`);
+      if (ex.critique) parts.push(`**Critique**: ${ex.critique}`);
+      if (ex.suggestedAnswer || ex.suggested_answer) {
+        parts.push(`**Suggested Answer**: ${ex.suggestedAnswer || ex.suggested_answer}`);
+      }
+      
+      // Fallback if the object didn't have standard fields
+      rawText = parts.length > 0 ? parts.join('\n\n') : JSON.stringify(ex);
+    } else {
+      rawText = String(ex);
+    }
+
     const div = document.createElement('div');
     div.className = 'improved-example';
-    let htmlContent = ex
+    let htmlContent = rawText
       .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
       .replace(/\n/g, '<br>')
       .replace(/<br>\s*-\s*/g, '<br>• ')
