@@ -17,7 +17,7 @@ Interview Prep is a real-time, voice-based AI mock interview application powered
 ## 🛠 Tech Stack
 - **Backend**: Node.js, Express, `pdf-parse`, `multer`
 - **Frontend**: Vanilla JS, Vite, HTML5 (Web Audio / Media API)
-- **AI Integration**: Gemini Live API (`gemini-3.1-flash-live-preview`), Gemini API (`gemini-2.5-flash` for feedback extraction)
+- **AI Integration**: Gemini Live API (`gemini-3.1-flash-live-preview`), GMI Cloud API (`deepseek-ai/DeepSeek-V4-Flash` for feedback extraction)
 
 ---
 
@@ -40,9 +40,10 @@ cd interview-prep
    ```bash
    cp .env.example .env
    ```
-2. Open the `.env` file and input your Gemini API Key:
+2. Open the `.env` file and input your Gemini and GMI Cloud API Keys:
    ```env
    GEMINI_API_KEY=your_actual_api_key_here
+   GMI_CLOUD_API_KEY=your_actual_gmi_cloud_api_key_here
    ```
 
 ### Step 3: Installation

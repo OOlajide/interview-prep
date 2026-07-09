@@ -24,6 +24,20 @@ app.use(express.static('dist'));
 const secretClient = new SecretManagerServiceClient();
 let ai;
 
+async function getGmiApiKey() {
+  if (process.env.K_SERVICE) {
+    console.log('Detected Google Cloud environment, fetching GMI secret...');
+    try {
+      const name = 'projects/151337636767/secrets/GMI_CLOUD_API_KEY/versions/latest';
+      const [version] = await secretClient.accessSecretVersion({ name });
+      return version.payload.data.toString();
+    } catch (error) {
+      console.warn('Warning: Error fetching GMI_CLOUD_API_KEY from Secret Manager, trying process.env:', error);
+    }
+  }
+  return process.env.GMI_CLOUD_API_KEY;
+}
+
 async function getApiKey() {
   if (process.env.K_SERVICE) {
     console.log('Detected Google Cloud environment, fetching secret...');
@@ -96,12 +110,6 @@ app.post('/api/interview-feedback', async (req, res) => {
       return res.status(400).json({ error: 'Transcript is required to generate feedback.' });
     }
 
-    if (!ai) {
-      const apiKey = await getApiKey();
-      if (!apiKey) throw new Error('GEMINI_API_KEY not found');
-      ai = new GoogleGenAI({ apiKey });
-    }
-
     const prompt = `You are an expert interviewer and career coach. Review the following mock interview transcript and generate structured feedback.
 
 Interview Details:
@@ -130,16 +138,49 @@ Generate a comprehensive feedback report in JSON format matching this exact sche
 }
 Ensure the JSON is valid, contains no extra markdown wrapper, and conforms strictly to this structure.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-      }
+    const gmiApiKey = await getGmiApiKey();
+    if (!gmiApiKey) {
+      throw new Error('GMI_CLOUD_API_KEY not found');
+    }
+
+    const payload = {
+      model: "deepseek-ai/DeepSeek-V4-Flash",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0,
+      response_format: { type: "json_object" }
+    };
+
+    const apiResponse = await fetch("https://api.gmi-serving.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${gmiApiKey}`
+      },
+      body: JSON.stringify(payload)
     });
 
-    const resultText = response.text;
-    res.json(JSON.parse(resultText));
+    if (!apiResponse.ok) {
+      const errorText = await apiResponse.text();
+      throw new Error(`DeepSeek API error: ${apiResponse.status} - ${errorText}`);
+    }
+
+    const data = await apiResponse.json();
+    const resultText = data.choices[0].message.content;
+
+    // Robust cleanup of markdown wrapper if model returns any
+    let cleanJson = resultText.trim();
+    if (cleanJson.startsWith('```')) {
+      cleanJson = cleanJson.replace(/^```(?:json)?\n?/i, '');
+      cleanJson = cleanJson.replace(/\n?```$/, '');
+      cleanJson = cleanJson.trim();
+    }
+
+    res.json(JSON.parse(cleanJson));
   } catch (error) {
     console.error("Error generating feedback:", error);
     res.status(500).json({ error: error.message || 'Failed to generate feedback' });
