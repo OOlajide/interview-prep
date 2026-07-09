@@ -24,6 +24,7 @@ Interview Prep is a real-time, voice-based AI mock interview application powered
 ## 📋 Prerequisites
 - **Node.js**: Version 18.0.0 or higher.
 - **Gemini API Key**: Obtain a key from [Google AI Studio](https://aistudio.google.com/).
+- **GMI Cloud API Key**: Obtain a key from [GMI Cloud Console](https://console.gmicloud.ai/).
 
 ---
 
