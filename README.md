@@ -17,7 +17,7 @@ Interview Prep is a real-time, voice-based AI mock interview application powered
 ## 🛠 Tech Stack
 - **Backend**: Node.js, Express, `pdf-parse`, `multer`
 - **Frontend**: Vanilla JS, Vite, HTML5 (Web Audio / Media API)
-- **AI Integration**: Gemini Live API (`gemini-3.1-flash-live-preview`), GMI Cloud API (`deepseek-ai/DeepSeek-V4-Flash` for feedback extraction)
+- **AI Integration**: Gemini Live API (`gemini-3.1-flash-live-preview`), GMI Cloud API (`openai/gpt-5.4-nano` for feedback extraction)
 
 ---
 

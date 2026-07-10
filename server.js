@@ -24,11 +24,20 @@ app.use(express.static('dist'));
 const secretClient = new SecretManagerServiceClient();
 let ai;
 
+let projectId;
+async function getProjectId() {
+  if (!projectId) {
+    projectId = process.env.GOOGLE_CLOUD_PROJECT || await secretClient.getProjectId();
+  }
+  return projectId;
+}
+
 async function getGmiApiKey() {
   if (process.env.K_SERVICE) {
     console.log('Detected Google Cloud environment, fetching GMI secret...');
     try {
-      const name = 'projects/151337636767/secrets/GMI_CLOUD_API_KEY/versions/latest';
+      const projId = await getProjectId();
+      const name = `projects/${projId}/secrets/GMI_CLOUD_API_KEY/versions/latest`;
       const [version] = await secretClient.accessSecretVersion({ name });
       return version.payload.data.toString();
     } catch (error) {
@@ -42,7 +51,8 @@ async function getApiKey() {
   if (process.env.K_SERVICE) {
     console.log('Detected Google Cloud environment, fetching secret...');
     try {
-      const name = 'projects/151337636767/secrets/GEMINI_API_KEY/versions/latest';
+      const projId = await getProjectId();
+      const name = `projects/${projId}/secrets/GEMINI_API_KEY/versions/latest`;
       const [version] = await secretClient.accessSecretVersion({ name });
       return version.payload.data.toString();
     } catch (error) {
@@ -144,7 +154,7 @@ Ensure the JSON is valid, contains no extra markdown wrapper, and conforms stric
     }
 
     const payload = {
-      model: "deepseek-ai/DeepSeek-V4-Flash",
+      model: "openai/gpt-5.4-nano",
       messages: [
         {
           role: "user",
@@ -166,7 +176,7 @@ Ensure the JSON is valid, contains no extra markdown wrapper, and conforms stric
 
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
-      throw new Error(`DeepSeek API error: ${apiResponse.status} - ${errorText}`);
+      throw new Error(`GPT-5.4-nano API error: ${apiResponse.status} - ${errorText}`);
     }
 
     const data = await apiResponse.json();
