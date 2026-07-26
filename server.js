@@ -154,7 +154,7 @@ Ensure the JSON is valid, contains no extra markdown wrapper, and conforms stric
     }
 
     const payload = {
-      model: "openai/gpt-5.4-nano",
+      model: "google/gemini-3.5-flash-lite",
       messages: [
         {
           role: "user",
@@ -176,7 +176,7 @@ Ensure the JSON is valid, contains no extra markdown wrapper, and conforms stric
 
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
-      throw new Error(`GPT-5.4-nano API error: ${apiResponse.status} - ${errorText}`);
+      throw new Error(`GMI API error (gemini-3.5-flash-lite): ${apiResponse.status} - ${errorText}`);
     }
 
     const data = await apiResponse.json();
