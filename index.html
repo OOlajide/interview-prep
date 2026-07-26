@@ -531,8 +531,8 @@
 
     .idle-steps {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.25rem;
       width: 100%;
       max-width: 720px;
       margin-top: 2rem;
@@ -1082,6 +1082,24 @@
       .modal-content h2 {
         margin-top: -2.5rem;
         font-size: 1.25rem;
+      }
+      .state-idle {
+        padding: 1.75rem 1rem;
+      }
+      .idle-steps {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+        margin-top: 1.5rem;
+      }
+      .idle-step {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 0.85rem 1.15rem;
+        gap: 14px;
+      }
+      .step-num {
+        flex-shrink: 0;
       }
     }
   </style>
