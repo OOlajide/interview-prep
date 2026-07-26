@@ -27,7 +27,7 @@ const removeFileBtn = document.getElementById('removeFileBtn');
 const jobDescriptionInput = document.getElementById('jobDescription');
 const targetRoleInput = document.getElementById('targetRole');
 const interviewTypeSelect = document.getElementById('interviewType');
-const webcamToggle = document.getElementById('webcamToggle');
+const cameraToggle = document.getElementById('cameraToggle');
 
 const startBtn = document.getElementById('startBtn');
 const errorBanner = document.getElementById('errorBanner');
@@ -43,7 +43,7 @@ const statusText = document.getElementById('statusText');
 const statusDot = document.getElementById('statusDot');
 const videoContainer = document.getElementById('videoContainer');
 const cameraPlaceholder = document.getElementById('cameraPlaceholder');
-const webcamEl = document.getElementById('webcam');
+const cameraEl = document.getElementById('camera');
 const avatarGlow = document.getElementById('avatarGlow');
 const stopBtn = document.getElementById('stopBtn');
 
@@ -201,15 +201,15 @@ function updateStatus(state, text) {
   if (state === 'connecting') statusDot.classList.add('connecting');
 }
 
-async function initMedia(facingMode = 'user', useWebcam = false) {
-  videoElement = document.getElementById('webcam');
+async function initMedia(facingMode = 'user', useCamera = false) {
+  videoElement = document.getElementById('camera');
   videoElement.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
 
   const constraints = {
     audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
   };
   
-  if (useWebcam) {
+  if (useCamera) {
     constraints.video = { 
       width: 640, 
       height: 480,
@@ -219,7 +219,7 @@ async function initMedia(facingMode = 'user', useWebcam = false) {
 
   stream = await navigator.mediaDevices.getUserMedia(constraints);
   
-  if (useWebcam && stream.getVideoTracks().length > 0) {
+  if (useCamera && stream.getVideoTracks().length > 0) {
     videoElement.srcObject = stream;
     videoElement.classList.add('active');
     videoElement.style.display = 'block';
@@ -316,15 +316,15 @@ async function startSession() {
     switchState('session');
     updateStatus('connecting', 'Requesting Media...');
     
-    const useWebcam = webcamToggle.checked;
+    const useCamera = cameraToggle.checked;
     try {
-      await initMedia('user', useWebcam);
+      await initMedia('user', useCamera);
     } catch (mediaErr) {
       console.error(mediaErr);
       if (mediaErr.name === 'NotAllowedError') {
         throw new Error('Microphone permission denied. Microphone access is required to run mock interviews.');
       } else {
-        throw new Error('Could not access microphone/webcam: ' + mediaErr.message);
+        throw new Error('Could not access microphone/camera: ' + mediaErr.message);
       }
     }
     
@@ -425,8 +425,8 @@ ${jobDesc}
       }
     };
     
-    // Send video frames at ~1 FPS only if webcam is enabled
-    if (useWebcam && ctx) {
+    // Send video frames at ~1 FPS only if camera is enabled
+    if (useCamera && ctx) {
       frameInterval = setInterval(() => {
         if (isSessionActive && ctx) {
           ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
@@ -483,10 +483,10 @@ function stopSession() {
   }
 
   avatarGlow.classList.remove('pulsing');
-  if (webcamEl) {
-    webcamEl.srcObject = null;
-    webcamEl.classList.remove('active');
-    webcamEl.style.display = 'none';
+  if (cameraEl) {
+    cameraEl.srcObject = null;
+    cameraEl.classList.remove('active');
+    cameraEl.style.display = 'none';
   }
   
   lastSpeaker = null;

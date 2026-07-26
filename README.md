@@ -9,7 +9,7 @@ Interview Prep is a real-time, voice-based AI mock interview application powered
 - **Real-Time Interactive AI Interviewer**: Low-latency spoken conversation mimicking a live human interviewer.
 - **Customized/Tailored Experience**: Generates questions based on the candidate's actual resume (extracted from PDF) and target job description.
 - **Support for Key Formats**: Practice Behavioral, Technical, Product/Case, or Mixed interview screens.
-- **Optional Webcam Support**: Enable webcam to simulate an in-person meeting experience.
+- **Optional Camera Support**: Enable camera to simulate an in-person meeting experience.
 - **Comprehensive Feedback Dashboard**: Receives overall scores, bulleted lists of strengths/weaknesses, concrete improvement examples (e.g., STAR structure), and alignment insights.
 
 ---

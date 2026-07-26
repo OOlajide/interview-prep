@@ -1128,7 +1128,7 @@
         <li><strong>Resume:</strong> Upload your resume as a PDF.</li>
         <li><strong>Job Description:</strong> Paste the target job description.</li>
         <li><strong>Interview Options:</strong> Specify target company/role (this is optional) and choose the interview type.</li>
-        <li><strong>Webcam:</strong> Enable webcam if you'd like to practice with visual presence (this is optional).</li>
+        <li><strong>Camera:</strong> Enable camera if you'd like to practice with visual presence (this is optional).</li>
         <li><strong>Practice:</strong> Click <strong>Start Mock Interview</strong> and say "hi" or "hello" to begin. The interviewer will ask tailored questions, listen to your responses, ask relevant follow-up questions, and guide you through the interview.</li>
         <li><strong>Feedback:</strong> Click <strong>End Interview</strong> to generate a structured feedback with scores, strengths, weaknesses, and improved answers.</li>
       </ol>
@@ -1181,11 +1181,11 @@
         </select>
       </div>
 
-      <!-- Optional Webcam Toggle -->
+      <!-- Optional Camera Toggle -->
       <div class="toggle-group">
-        <span style="font-size: 0.9rem; font-weight: 600;">Enable Webcam (Optional)</span>
+        <span style="font-size: 0.9rem; font-weight: 600;">Enable Camera (Optional)</span>
         <label class="switch">
-          <input type="checkbox" id="webcamToggle">
+          <input type="checkbox" id="cameraToggle">
           <span class="slider"></span>
         </label>
       </div>
@@ -1231,13 +1231,13 @@
         </div>
         
         <div class="session-visuals">
-          <!-- Webcam (Conditional) -->
+          <!-- Camera (Conditional) -->
           <div class="video-container" id="videoContainer">
             <div class="camera-placeholder" id="cameraPlaceholder">
               <span style="font-size: 2.5rem;">📷</span>
-              <p style="font-size: 0.85rem;">Webcam disabled</p>
+              <p style="font-size: 0.85rem;">Camera disabled</p>
             </div>
-            <video id="webcam" autoplay playsinline muted style="display: none;"></video>
+            <video id="camera" autoplay playsinline muted style="display: none;"></video>
           </div>
           
           <!-- Avatar / Waveform -->
