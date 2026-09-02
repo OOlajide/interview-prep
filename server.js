@@ -39,12 +39,16 @@ async function getZanApiKey() {
       const projId = await getProjectId();
       const name = `projects/${projId}/secrets/ZAN_API_KEY/versions/latest`;
       const [version] = await secretClient.accessSecretVersion({ name });
-      return version.payload.data.toString();
+      return version.payload.data.toString().trim();
     } catch (error) {
-      console.warn('Warning: Error fetching ZAN_API_KEY from Secret Manager, trying process.env:', error);
+      console.error('CRITICAL: Error fetching ZAN_API_KEY from Secret Manager:', error);
+      if (process.env.ZAN_API_KEY) {
+        return process.env.ZAN_API_KEY.trim();
+      }
+      throw new Error(`Failed to access ZAN_API_KEY in Secret Manager: ${error.message}`);
     }
   }
-  return process.env.ZAN_API_KEY;
+  return process.env.ZAN_API_KEY ? process.env.ZAN_API_KEY.trim() : undefined;
 }
 
 async function getApiKey() {
