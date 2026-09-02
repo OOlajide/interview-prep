@@ -161,8 +161,13 @@ Generate a comprehensive feedback report in JSON format matching this exact sche
   "summary": "Overall summary of the candidate's actual interview performance",
   "strengths": ["Strength 1", "Strength 2", ...],
   "weaknesses": ["Weakness 1", "Weakness 2", ...],
-  "missedOpportunities": ["Detail where the candidate could have elaborated or given a better answer", ...],
-  "improvedAnswerExamples": ["Format each example strictly using this structure (use double newlines between sections):\n\n**Question**: [Question from transcript]\n\n**Critique**: [Why the candidate's actual spoken answer could be improved]\n\n**Suggested Answer**: [A model answer using STAR method if behavioral, or step-by-step clarity if technical]", ...],
+  "improvedAnswerExamples": [
+    {
+      "question": "Question from transcript",
+      "critique": "Why the candidate's actual spoken answer could be improved",
+      "suggestedAnswer": "A model answer using STAR method if behavioral, or step-by-step clarity if technical (only the model answer, do not repeat question/critique prefixes)"
+    }
+  ],
   "resumeJobFit": "Analysis of how well the candidate's resume aligns with this job description",
   "recommendedPracticeAreas": ["Area to practice 1", "Area to practice 2", ...]
 }

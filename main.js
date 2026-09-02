@@ -618,46 +618,7 @@ function displayFeedback(feedback) {
   feedbackAlignment.textContent = feedback.resumeJobFit || 'No resume-job alignment analysis provided.';
 
   // Examples
-  feedbackExamples.innerHTML = '';
-  const examples = (feedback.improvedAnswerExamples || []).filter(Boolean);
-  if (examples.length === 0) {
-    const div = document.createElement('div');
-    div.className = 'improved-example';
-    div.innerHTML = '<i>No verbal answers were provided during this session to generate critique and improvement examples.</i>';
-    feedbackExamples.appendChild(div);
-  } else {
-    examples.forEach(ex => {
-      // Safely cast or format ex to a string. 
-      // Sometimes the LLM returns an object structure for improvedAnswerExamples instead of a raw string.
-      let rawText = '';
-      if (typeof ex === 'string') {
-        rawText = ex;
-      } else if (typeof ex === 'object') {
-        // If it's an object, format its properties (e.g. question, critique, suggestedAnswer)
-        const parts = [];
-        if (ex.question) parts.push(`**Question**: ${ex.question}`);
-        if (ex.critique) parts.push(`**Critique**: ${ex.critique}`);
-        if (ex.suggestedAnswer || ex.suggested_answer) {
-          parts.push(`**Suggested Answer**: ${ex.suggestedAnswer || ex.suggested_answer}`);
-        }
-        
-        // Fallback if the object didn't have standard fields
-        rawText = parts.length > 0 ? parts.join('\n\n') : JSON.stringify(ex);
-      } else {
-        rawText = String(ex);
-      }
-
-      const div = document.createElement('div');
-      div.className = 'improved-example';
-      let htmlContent = rawText
-        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-        .replace(/\n/g, '<br>')
-        .replace(/<br>\s*-\s*/g, '<br>• ')
-        .replace(/^-\s*/g, '• ');
-      div.innerHTML = htmlContent;
-      feedbackExamples.appendChild(div);
-    });
-  }
+  renderImprovedExamples(feedback.improvedAnswerExamples);
 
   // Practice Areas
   feedbackPractice.innerHTML = '';
@@ -666,6 +627,112 @@ function displayFeedback(feedback) {
     span.className = 'practice-tag';
     span.textContent = area;
     feedbackPractice.appendChild(span);
+  });
+}
+
+function renderImprovedExamples(examples) {
+  feedbackExamples.innerHTML = '';
+  const list = (examples || []).filter(Boolean);
+  if (list.length === 0) {
+    const div = document.createElement('div');
+    div.className = 'improved-example';
+    div.innerHTML = '<i>No verbal answers were provided during this session to generate critique and improvement examples.</i>';
+    feedbackExamples.appendChild(div);
+    return;
+  }
+
+  list.forEach(ex => {
+    let item = ex;
+    // Attempt JSON parsing if it's a stringified JSON object
+    if (typeof item === 'string') {
+      const trimmed = item.trim();
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        try {
+          item = JSON.parse(trimmed);
+        } catch (e) {
+          // keep as string
+        }
+      }
+    }
+
+    let question = '';
+    let critique = '';
+    let suggestedAnswer = '';
+    let rawText = '';
+
+    if (item && typeof item === 'object') {
+      const keys = Object.keys(item);
+      const getVal = (candidates) => {
+        for (const c of candidates) {
+          const match = keys.find(k => k.toLowerCase().replace(/[^a-z]/g, '') === c.toLowerCase().replace(/[^a-z]/g, ''));
+          if (match && item[match]) return String(item[match]);
+        }
+        return '';
+      };
+
+      question = getVal(['question']);
+      critique = getVal(['critique']);
+      suggestedAnswer = getVal(['suggestedAnswer', 'suggested', 'modelAnswer', 'answer']);
+
+      // If suggestedAnswer contains redundant nested prefixes (e.g. "Question: ... Critique: ... Suggested Answer: ..."), strip them
+      if (suggestedAnswer) {
+        const match = suggestedAnswer.match(/Suggested Answer:\s*([\s\S]*)$/i);
+        if (match) {
+          suggestedAnswer = match[1].trim();
+        }
+      }
+
+      // If none matched standard fields, format properties
+      if (!question && !critique && !suggestedAnswer) {
+        rawText = Object.entries(item)
+          .map(([k, v]) => `**${k}**: ${typeof v === 'object' ? JSON.stringify(v) : v}`)
+          .join('\n\n');
+      }
+    } else {
+      rawText = String(item || '');
+    }
+
+    const card = document.createElement('div');
+    card.className = 'improved-example';
+
+    const formatText = (txt) => {
+      let unescaped = String(txt || '')
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .replace(/^"+|"+$/g, '')
+        .trim();
+
+      return unescaped
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/\n/g, '<br>')
+        .replace(/<br>\s*-\s*/g, '<br>• ')
+        .replace(/^-\s*/g, '• ');
+    };
+
+    if (question || critique || suggestedAnswer) {
+      if (question) {
+        const sec = document.createElement('div');
+        sec.className = 'example-section';
+        sec.innerHTML = `<span class="example-label question">Question</span><p class="example-text">${formatText(question)}</p>`;
+        card.appendChild(sec);
+      }
+      if (critique) {
+        const sec = document.createElement('div');
+        sec.className = 'example-section';
+        sec.innerHTML = `<span class="example-label critique">Critique</span><p class="example-text">${formatText(critique)}</p>`;
+        card.appendChild(sec);
+      }
+      if (suggestedAnswer) {
+        const sec = document.createElement('div');
+        sec.className = 'example-section';
+        sec.innerHTML = `<span class="example-label suggested">Suggested Answer</span><p class="example-text">${formatText(suggestedAnswer)}</p>`;
+        card.appendChild(sec);
+      }
+    } else {
+      card.innerHTML = formatText(rawText);
+    }
+
+    feedbackExamples.appendChild(card);
   });
 }
 
