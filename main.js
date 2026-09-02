@@ -507,7 +507,22 @@ function stopSession() {
 
 async function endSessionAndGetFeedback() {
   const hasHistory = transcriptHistory.length > 0;
-  
+  const candidateResponses = transcriptHistory.filter(
+    item => item.sender === 'candidate' && item.text.trim().length > 0
+  );
+
+  if (candidateResponses.length === 0) {
+    const proceed = confirm(
+      "You haven't answered any interview questions yet.\n\nClick OK to generate an Incomplete report (Score 0), or Cancel to return to setup without generating a report."
+    );
+    if (!proceed) {
+      stopSession();
+      transcriptHistory = [];
+      switchState('idle');
+      return;
+    }
+  }
+
   stopSession();
 
   if (!hasHistory) {
@@ -565,9 +580,12 @@ function displayFeedback(feedback) {
   } else if (score >= 60) {
     scoreCircle.classList.add('medium');
     feedbackRating.textContent = 'Good Standing';
-  } else {
+  } else if (score > 0) {
     scoreCircle.classList.add('low');
     feedbackRating.textContent = 'Practice Recommended';
+  } else {
+    scoreCircle.classList.add('low');
+    feedbackRating.textContent = 'Incomplete Interview';
   }
 
   feedbackSummary.textContent = feedback.summary || 'No summary provided.';
@@ -601,39 +619,45 @@ function displayFeedback(feedback) {
 
   // Examples
   feedbackExamples.innerHTML = '';
-  (feedback.improvedAnswerExamples || []).forEach(ex => {
-    if (!ex) return;
-    
-    // Safely cast or format ex to a string. 
-    // Sometimes the LLM returns an object structure for improvedAnswerExamples instead of a raw string.
-    let rawText = '';
-    if (typeof ex === 'string') {
-      rawText = ex;
-    } else if (typeof ex === 'object') {
-      // If it's an object, format its properties (e.g. question, critique, suggestedAnswer)
-      const parts = [];
-      if (ex.question) parts.push(`**Question**: ${ex.question}`);
-      if (ex.critique) parts.push(`**Critique**: ${ex.critique}`);
-      if (ex.suggestedAnswer || ex.suggested_answer) {
-        parts.push(`**Suggested Answer**: ${ex.suggestedAnswer || ex.suggested_answer}`);
-      }
-      
-      // Fallback if the object didn't have standard fields
-      rawText = parts.length > 0 ? parts.join('\n\n') : JSON.stringify(ex);
-    } else {
-      rawText = String(ex);
-    }
-
+  const examples = (feedback.improvedAnswerExamples || []).filter(Boolean);
+  if (examples.length === 0) {
     const div = document.createElement('div');
     div.className = 'improved-example';
-    let htmlContent = rawText
-      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-      .replace(/\n/g, '<br>')
-      .replace(/<br>\s*-\s*/g, '<br>• ')
-      .replace(/^-\s*/g, '• ');
-    div.innerHTML = htmlContent;
+    div.innerHTML = '<i>No verbal answers were provided during this session to generate critique and improvement examples.</i>';
     feedbackExamples.appendChild(div);
-  });
+  } else {
+    examples.forEach(ex => {
+      // Safely cast or format ex to a string. 
+      // Sometimes the LLM returns an object structure for improvedAnswerExamples instead of a raw string.
+      let rawText = '';
+      if (typeof ex === 'string') {
+        rawText = ex;
+      } else if (typeof ex === 'object') {
+        // If it's an object, format its properties (e.g. question, critique, suggestedAnswer)
+        const parts = [];
+        if (ex.question) parts.push(`**Question**: ${ex.question}`);
+        if (ex.critique) parts.push(`**Critique**: ${ex.critique}`);
+        if (ex.suggestedAnswer || ex.suggested_answer) {
+          parts.push(`**Suggested Answer**: ${ex.suggestedAnswer || ex.suggested_answer}`);
+        }
+        
+        // Fallback if the object didn't have standard fields
+        rawText = parts.length > 0 ? parts.join('\n\n') : JSON.stringify(ex);
+      } else {
+        rawText = String(ex);
+      }
+
+      const div = document.createElement('div');
+      div.className = 'improved-example';
+      let htmlContent = rawText
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/\n/g, '<br>')
+        .replace(/<br>\s*-\s*/g, '<br>• ')
+        .replace(/^-\s*/g, '• ');
+      div.innerHTML = htmlContent;
+      feedbackExamples.appendChild(div);
+    });
+  }
 
   // Practice Areas
   feedbackPractice.innerHTML = '';

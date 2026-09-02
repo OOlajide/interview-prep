@@ -124,7 +124,23 @@ app.post('/api/interview-feedback', async (req, res) => {
       return res.status(400).json({ error: 'Transcript is required to generate feedback.' });
     }
 
-    const prompt = `You are an expert interviewer and career coach. Review the following mock interview transcript and generate structured feedback.
+    const prompt = `You are an expert interviewer and career coach. Review the following mock interview transcript and generate structured, honest feedback.
+
+CRITICAL EVALUATION AND SCORING RULES:
+1. STRICT TRANSCRIPT GROUNDING: Evaluate performance SOLELY on the candidate's actual spoken statements in the Interview Transcript. NEVER invent, assume, or hallucinate answers that the candidate did not speak.
+2. RESUME BOUNDARY: The Candidate Resume is provided strictly for background context and for completing the "resumeJobFit" field. It must NEVER substitute for spoken interview performance, nor inflate the "overallScore", "strengths", or "weaknesses".
+3. EMPTY OR ABANDONED INTERVIEWS:
+   - If the transcript contains NO candidate responses, or only silent/trivial filler (e.g. "hi", "ok"), the "overallScore" MUST be 0.
+   - In this case, "summary" MUST explicitly state: "The mock interview was ended prematurely before the candidate answered any interview questions. Verbal interview performance could not be evaluated."
+   - "strengths" should only note background qualifications if relevant, but explicitly state that no interview performance was demonstrated.
+   - "weaknesses" MUST highlight that the candidate did not participate in or complete the interview.
+   - "improvedAnswerExamples" MUST be an empty array [] because no candidate answers were attempted.
+4. SCORING RUBRIC (Based strictly on verbal responses):
+   - 85-100: Outstanding, articulate answers using STAR method with clear metrics, technical depth, and strong structure across multiple questions.
+   - 70-84: Solid answers with good relevance, but minor gaps in structure or depth.
+   - 50-69: Vague or brief answers lacking concrete examples or details.
+   - 1-49: Severely incomplete interview (e.g., only 1 brief answer given before ending).
+   - 0: No candidate answers recorded.
 
 Interview Details:
 - Type: ${interviewType || 'General'}
@@ -142,11 +158,11 @@ ${transcript}
 Generate a comprehensive feedback report in JSON format matching this exact schema:
 {
   "overallScore": number (out of 100),
-  "summary": "Overall summary of the candidate's performance",
+  "summary": "Overall summary of the candidate's actual interview performance",
   "strengths": ["Strength 1", "Strength 2", ...],
   "weaknesses": ["Weakness 1", "Weakness 2", ...],
   "missedOpportunities": ["Detail where the candidate could have elaborated or given a better answer", ...],
-  "improvedAnswerExamples": ["Format each example strictly using this structure (use double newlines between sections):\n\n**Question**: [Question from transcript]\n\n**Critique**: [Why the original answer could be improved]\n\n**Suggested Answer**: [A model answer using STAR method if behavioral, or step-by-step clarity if technical]", ...],
+  "improvedAnswerExamples": ["Format each example strictly using this structure (use double newlines between sections):\n\n**Question**: [Question from transcript]\n\n**Critique**: [Why the candidate's actual spoken answer could be improved]\n\n**Suggested Answer**: [A model answer using STAR method if behavioral, or step-by-step clarity if technical]", ...],
   "resumeJobFit": "Analysis of how well the candidate's resume aligns with this job description",
   "recommendedPracticeAreas": ["Area to practice 1", "Area to practice 2", ...]
 }
