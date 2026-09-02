@@ -365,8 +365,8 @@ ${jobDesc}
       config: {
         responseModalities: [Modality.AUDIO],
         systemInstruction: { parts: [{ text: finalInstructions }] },
-        inputAudioTranscription: { outputTranscriptionMimeType: 'text/plain' },
-        outputAudioTranscription: { outputTranscriptionMimeType: 'text/plain' }
+        inputAudioTranscription: {},
+        outputAudioTranscription: {}
       },
       callbacks: {
         onopen: () => {
@@ -401,11 +401,20 @@ ${jobDesc}
         onclose: (event) => {
           console.log("Session closed", event);
           if (isSessionActive) {
+            if (event.code !== 1000) {
+              showError(`Session ended unexpectedly (code ${event.code}${event.reason ? ': ' + event.reason : ''}). Please try restarting.`);
+            }
             updateStatus('ready', 'Session Ended');
             stopSession();
           }
         }
       }
+    });
+
+    // Prompt the interviewer to deliver the opening greeting and first question
+    session.sendClientContent({
+      turns: [{ role: 'user', parts: [{ text: 'Hello, I am ready to begin the interview.' }] }],
+      turnComplete: true
     });
 
     audioContext = new AudioContext({ sampleRate: 16000 });
