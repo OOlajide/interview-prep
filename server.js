@@ -32,19 +32,19 @@ async function getProjectId() {
   return projectId;
 }
 
-async function getGmiApiKey() {
+async function getZanApiKey() {
   if (process.env.K_SERVICE) {
-    console.log('Detected Google Cloud environment, fetching GMI secret...');
+    console.log('Detected Google Cloud environment, fetching ZAN secret...');
     try {
       const projId = await getProjectId();
-      const name = `projects/${projId}/secrets/GMI_CLOUD_API_KEY/versions/latest`;
+      const name = `projects/${projId}/secrets/ZAN_API_KEY/versions/latest`;
       const [version] = await secretClient.accessSecretVersion({ name });
       return version.payload.data.toString();
     } catch (error) {
-      console.warn('Warning: Error fetching GMI_CLOUD_API_KEY from Secret Manager, trying process.env:', error);
+      console.warn('Warning: Error fetching ZAN_API_KEY from Secret Manager, trying process.env:', error);
     }
   }
-  return process.env.GMI_CLOUD_API_KEY;
+  return process.env.ZAN_API_KEY;
 }
 
 async function getApiKey() {
@@ -148,13 +148,13 @@ Generate a comprehensive feedback report in JSON format matching this exact sche
 }
 Ensure the JSON is valid, contains no extra markdown wrapper, and conforms strictly to this structure.`;
 
-    const gmiApiKey = await getGmiApiKey();
-    if (!gmiApiKey) {
-      throw new Error('GMI_CLOUD_API_KEY not found');
+    const zanApiKey = await getZanApiKey();
+    if (!zanApiKey) {
+      throw new Error('ZAN_API_KEY not found');
     }
 
     const payload = {
-      model: "google/gemini-3.5-flash-lite",
+      model: "gemini-2.5-flash-lite",
       messages: [
         {
           role: "user",
@@ -165,18 +165,18 @@ Ensure the JSON is valid, contains no extra markdown wrapper, and conforms stric
       response_format: { type: "json_object" }
     };
 
-    const apiResponse = await fetch("https://api.gmi-serving.com/v1/chat/completions", {
+    const apiResponse = await fetch("https://ai.zan.top/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${gmiApiKey}`
+        "Authorization": `Bearer ${zanApiKey}`
       },
       body: JSON.stringify(payload)
     });
 
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
-      throw new Error(`GMI API error (gemini-3.5-flash-lite): ${apiResponse.status} - ${errorText}`);
+      throw new Error(`Zan API error (gemini-2.5-flash-lite): ${apiResponse.status} - ${errorText}`);
     }
 
     const data = await apiResponse.json();
